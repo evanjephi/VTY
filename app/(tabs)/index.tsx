@@ -1,56 +1,201 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { LineChart } from 'react-native-wagmi-charts';
+
+// If using Expo, you can use process.env or expo-constants
+const API_KEY = process.env.EXPO_PUBLIC_TWELVE_DATA_API_KEY || '';
+
+const DEFAULT_SYMBOLS = ['GBP/USD', 'BTC/USD', 'EUR/USD', 'ETH/USD'];
 
 export default function HomeScreen() {
+  const [search, setSearch] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [prices, setPrices] = useState<Record<string, any>>({});
+  const [loading, setLoading] = useState(false);
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [allSymbols, setAllSymbols] = useState<string[]>([]);
+
+  // Load favorites from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem('favorites').then(data => {
+      if (data) setFavorites(JSON.parse(data));
+    });
+  }, []);
+
+  // Fetch default prices
+  useEffect(() => {
+    fetchPrices(DEFAULT_SYMBOLS);
+  }, []);
+
+  // Fetch all available forex and crypto pairs on mount
+  useEffect(() => {
+    const fetchAllSymbols = async () => {
+      try {
+        const forexRes = await fetch(`https://api.twelvedata.com/forex_pairs?apikey=${API_KEY}`);
+        const forexData = await forexRes.json();
+        const cryptoRes = await fetch(`https://api.twelvedata.com/cryptocurrency_pairs?apikey=${API_KEY}`);
+        const cryptoData = await cryptoRes.json();
+        const forexSymbols = (forexData.data || []).map((item: any) => item.symbol);
+        const cryptoSymbols = (cryptoData.data || []).map((item: any) => item.symbol);
+        setAllSymbols([...forexSymbols, ...cryptoSymbols]);
+      } catch (e) {
+        setAllSymbols([]);
+      }
+    };
+    fetchAllSymbols();
+  }, []);
+
+  // Fetch prices for a list of symbols
+  const fetchPrices = async (symbols: string[]) => {
+    setLoading(true);
+    try {
+      const joined = symbols.map(s => s.replace('/', '')); // API expects e.g. GBPUSD
+      const url = `https://api.twelvedata.com/price?symbol=${joined.join(',')}&apikey=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setPrices(prev => ({ ...prev, ...data }));
+    } catch (e) {}
+    setLoading(false);
+  };
+
+  // Search for symbols
+  const onSearch = async () => {
+    if (!search) return;
+    setLoading(true);
+    try {
+      const url = `https://api.twelvedata.com/symbol_search?symbol=${search}&apikey=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      let found = data.data || [];
+      // If API returns nothing, filter from allSymbols
+      if (!found.length && allSymbols.length) {
+        found = allSymbols
+          .filter(s => s.toLowerCase().includes(search.toLowerCase()))
+          .map(s => ({ symbol: s }));
+      }
+      setResults(found);
+      fetchPrices(found.map((item: any) => item.symbol));
+    } catch (e) {}
+    setLoading(false);
+  };
+
+  // Save/unsave favorite
+  const toggleFavorite = async (symbol: string) => {
+    let updated: string[];
+    if (favorites.includes(symbol)) {
+      updated = favorites.filter(s => s !== symbol);
+    } else {
+      updated = [...favorites, symbol];
+    }
+    setFavorites(updated);
+    await AsyncStorage.setItem('favorites', JSON.stringify(updated));
+  };
+
+  // Fetch chart data for selected symbol
+  const fetchChart = async (symbol: string) => {
+    setChartLoading(true);
+    setSelectedSymbol(symbol);
+    try {
+      const url = `https://api.twelvedata.com/time_series?symbol=${symbol.replace('/', '')}&interval=1h&outputsize=24&apikey=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setChartData(
+        (data.values || []).reverse().map((v: any) => ({
+          timestamp: new Date(v.datetime).getTime(),
+          value: parseFloat(v.close),
+        }))
+      );
+    } catch (e) {
+      setChartData([]);
+    }
+    setChartLoading(false);
+  };
+
+  // Render a single index row
+  const renderItem = ({ item }: { item: any }) => {
+    const symbol = item.symbol || item;
+    const display = symbol.includes('/') ? symbol : symbol.replace(/([A-Z]+)(USD|EUR|GBP|BTC|ETH)/, '$1/$2');
+    const price = prices[symbol.replace('/', '')]?.price || prices[symbol]?.price || '--';
+    const isFav = favorites.includes(symbol);
+    return (
+      <TouchableOpacity
+        style={styles.row}
+        onPress={() => fetchChart(symbol)}
+        activeOpacity={0.7}
+      >
+        <ThemedText style={{ flex: 1 }}>{display}</ThemedText>
+        <ThemedText>{price}</ThemedText>
+        <TouchableOpacity onPress={() => toggleFavorite(symbol)}>
+          <Ionicons name={isFav ? 'star' : 'star-outline'} size={20} color="#FFD700" />
+        </TouchableOpacity>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
+      headerImage={<></>}
+    >
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <ThemedText type="title">Trading Indexes</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      <TextInput
+        style={styles.input}
+        placeholder="Search indexes (e.g. BTCUSD, GBPUSD)..."
+        value={search}
+        onChangeText={setSearch}
+        onSubmitEditing={onSearch}
+        returnKeyType="search"
+      />
+      {loading && <ActivityIndicator />}
+      <FlatList
+        data={results.length ? results : DEFAULT_SYMBOLS}
+        keyExtractor={item => (item.symbol || item)}
+        renderItem={renderItem}
+        ListHeaderComponent={
+          favorites.length > 0
+            ? <ThemedText type="subtitle" style={{ marginTop: 12 }}>Favorites</ThemedText>
+            : null
+        }
+        ListFooterComponent={
+          favorites.length > 0
+            ? (
+              <FlatList
+                data={favorites}
+                keyExtractor={item => item}
+                renderItem={renderItem}
+              />
+            )
+            : null
+        }
+      />
+      {selectedSymbol && (
+        <ThemedView style={styles.chartContainer}>
+          <ThemedText type="subtitle">{selectedSymbol} Chart (24h)</ThemedText>
+          {chartLoading ? (
+            <ActivityIndicator />
+          ) : chartData.length > 0 ? (
+            <LineChart.Provider data={chartData}>
+              <LineChart height={180} width={340}>
+                <LineChart.Path color="#4F8EF7" />
+                <LineChart.CursorCrosshair />
+              </LineChart>
+              <LineChart.PriceText style={{ alignSelf: 'center', marginTop: 8 }} />
+            </LineChart.Provider>
+          ) : (
+            <ThemedText>No chart data.</ThemedText>
+          )}
+        </ThemedView>
+      )}
     </ParallaxScrollView>
   );
 }
@@ -60,16 +205,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginBottom: 12,
   },
-  stepContainer: {
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 8,
+    marginBottom: 12,
+    backgroundColor: '#fff',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    paddingHorizontal: 4,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  chartContainer: {
+    marginTop: 20,
+    backgroundColor: '#f7f7f7',
+    borderRadius: 12,
+    padding: 12,
   },
 });
