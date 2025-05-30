@@ -195,7 +195,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 12,
-    paddingTop: 30,
+    paddingTop: 40,
+    paddingBottom: 10,
   },
   input: {
     borderWidth: 1,
@@ -216,7 +217,7 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     marginTop: 20,
-    backgroundColor: '#f7f7f7',
+    backgroundColor: '#000',
     borderRadius: 12,
     padding: 12,
   },
