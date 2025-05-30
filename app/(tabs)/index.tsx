@@ -165,7 +165,7 @@ export default function HomeScreen() {
         </>
       }
       ListFooterComponent={
-        selectedSymbol && (
+        selectedSymbol ? (
           <ThemedView style={styles.chartContainer}>
             <ThemedText type="subtitle">{selectedSymbol} Chart (24h)</ThemedText>
             {chartLoading ? (
@@ -182,7 +182,7 @@ export default function HomeScreen() {
               <ThemedText>No chart data.</ThemedText>
             )}
           </ThemedView>
-        )
+        ) : null
       }
       contentContainerStyle={{ paddingBottom: 40 }}
     />
