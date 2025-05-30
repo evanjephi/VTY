@@ -1,4 +1,3 @@
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
@@ -141,62 +140,52 @@ export default function HomeScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={<></>}
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Trading Indexes</ThemedText>
-      </ThemedView>
-      <TextInput
-        style={styles.input}
-        placeholder="Search indexes (e.g. BTCUSD, GBPUSD)..."
-        value={search}
-        onChangeText={setSearch}
-        onSubmitEditing={onSearch}
-        returnKeyType="search"
-      />
-      {loading && <ActivityIndicator />}
-      <FlatList
-        data={results.length ? results : DEFAULT_SYMBOLS}
-        keyExtractor={item => (item.symbol || item)}
-        renderItem={renderItem}
-        ListHeaderComponent={
-          favorites.length > 0
-            ? <ThemedText type="subtitle" style={{ marginTop: 12 }}>Favorites</ThemedText>
-            : null
-        }
-        ListFooterComponent={
-          favorites.length > 0
-            ? (
-              <FlatList
-                data={favorites}
-                keyExtractor={item => item}
-                renderItem={renderItem}
-              />
-            )
-            : null
-        }
-      />
-      {selectedSymbol && (
-        <ThemedView style={styles.chartContainer}>
-          <ThemedText type="subtitle">{selectedSymbol} Chart (24h)</ThemedText>
-          {chartLoading ? (
-            <ActivityIndicator />
-          ) : chartData.length > 0 ? (
-            <LineChart.Provider data={chartData}>
-              <LineChart height={180} width={340}>
-                <LineChart.Path color="#4F8EF7" />
-                <LineChart.CursorCrosshair />
-              </LineChart>
-              <LineChart.PriceText style={{ alignSelf: 'center', marginTop: 8 }} />
-            </LineChart.Provider>
-          ) : (
-            <ThemedText>No chart data.</ThemedText>
+    <FlatList
+      data={results.length ? results : DEFAULT_SYMBOLS}
+      keyExtractor={item => (item.symbol || item)}
+      renderItem={renderItem}
+      ListHeaderComponent={
+        <>
+          <ThemedView style={styles.titleContainer}>
+            <ThemedText type="title">Trading Indexes</ThemedText>
+          </ThemedView>
+          <TextInput
+            style={styles.input}
+            placeholder="Search indexes (e.g. BTCUSD, GBPUSD)..."
+            value={search}
+            onChangeText={setSearch}
+            onSubmitEditing={onSearch}
+            returnKeyType="search"
+          />
+          {loading && <ActivityIndicator />}
+          {favorites.length > 0 && (
+            <ThemedText type="subtitle" style={{ marginTop: 12 }}>Favorites</ThemedText>
           )}
-        </ThemedView>
-      )}
-    </ParallaxScrollView>
+          {favorites.length > 0 && favorites.map(symbol => renderItem({ item: symbol }))}
+        </>
+      }
+      ListFooterComponent={
+        selectedSymbol && (
+          <ThemedView style={styles.chartContainer}>
+            <ThemedText type="subtitle">{selectedSymbol} Chart (24h)</ThemedText>
+            {chartLoading ? (
+              <ActivityIndicator />
+            ) : chartData.length > 0 ? (
+              <LineChart.Provider data={chartData}>
+                <LineChart height={180} width={340}>
+                  <LineChart.Path color="#4F8EF7" />
+                  <LineChart.CursorCrosshair />
+                </LineChart>
+                <LineChart.PriceText style={{ alignSelf: 'center', marginTop: 8 }} />
+              </LineChart.Provider>
+            ) : (
+              <ThemedText>No chart data.</ThemedText>
+            )}
+          </ThemedView>
+        )
+      }
+      contentContainerStyle={{ paddingBottom: 40 }}
+    />
   );
 }
 
