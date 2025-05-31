@@ -98,7 +98,6 @@ export default function HomeScreen() {
     await AsyncStorage.setItem('favorites', JSON.stringify(updated));
   };
 
-  // Fetch chart data for selected symbol
   const fetchChart = async (symbol: string) => {
     setChartLoading(true);
     setSelectedSymbol(symbol);
