@@ -118,7 +118,6 @@ export default function HomeScreen() {
     setChartLoading(false);
   };
 
-  // Render a single index row
   const renderItem = ({ item }: { item: any }) => {
     const symbol = item.symbol || item;
     const display = symbol.includes('/') ? symbol : symbol.replace(/([A-Z]+)(USD|EUR|GBP|BTC|ETH)/, '$1/$2');
