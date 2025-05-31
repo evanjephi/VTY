@@ -105,7 +105,7 @@ export default function HomeScreen() {
       const url = `https://api.twelvedata.com/time_series?symbol=${symbol.replace('/', '')}&interval=1h&outputsize=24&apikey=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
-      console.log('Chart API response:', data); // <-- Add this line
+      console.log('Chart API response:', data);
       setChartData(
         (data.values || []).reverse().map((v: any) => ({
           timestamp: new Date(v.datetime).getTime(),
