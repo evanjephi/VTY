@@ -106,7 +106,7 @@ export default function HomeScreen() {
       const url = `https://api.twelvedata.com/time_series?symbol=${symbol.replace('/', '')}&interval=1h&outputsize=24&apikey=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
-      console.log('API response:', data); // Add this line
+      console.log('Chart API response:', data); // <-- Add this
       setChartData(
         (data.values || []).reverse().map((v: any) => ({
           timestamp: new Date(v.datetime).getTime(),
@@ -115,6 +115,7 @@ export default function HomeScreen() {
       );
     } catch (e) {
       setChartData([]);
+      console.log('Chart fetch error:', e); // <-- Add this
     }
     setChartLoading(false);
   };
