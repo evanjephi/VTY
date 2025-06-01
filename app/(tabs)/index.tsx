@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { LineChart } from 'react-native-wagmi-charts';
 
+
 // If using Expo, you can use process.env or expo-constants
 const API_KEY = process.env.EXPO_PUBLIC_TWELVE_DATA_API_KEY || '';
 
@@ -221,3 +222,5 @@ const styles = StyleSheet.create({
     padding: 12,
   },
 });
+
+console.log('API_KEY:', API_KEY);
