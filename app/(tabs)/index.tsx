@@ -2,14 +2,12 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { LineChart } from 'react-native-wagmi-charts';
 
-
-// If using Expo, you can use process.env or expo-constants
-const API_KEY = process.env.EXPO_PUBLIC_TWELVE_DATA_API_KEY || '';
-
+const API_KEY = Constants.expoConfig?.extra?.TWELVE_DATA_API_KEY || '';
 const DEFAULT_SYMBOLS = ['GBP/USD', 'BTC/USD', 'EUR/USD', 'ETH/USD'];
 
 export default function HomeScreen() {
@@ -23,71 +21,98 @@ export default function HomeScreen() {
   const [chartLoading, setChartLoading] = useState(false);
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
 
-  // Load favorites from AsyncStorage
+  // Load favorites from storage
   useEffect(() => {
     AsyncStorage.getItem('favorites').then(data => {
       if (data) setFavorites(JSON.parse(data));
     });
   }, []);
 
-  // Fetch default prices
+  // Fetch prices for default symbols on mount
   useEffect(() => {
     fetchPrices(DEFAULT_SYMBOLS);
   }, []);
 
-  // Fetch all available forex and crypto pairs on mount
+  // Fetch all symbols from API
   useEffect(() => {
     const fetchAllSymbols = async () => {
       try {
-        const forexRes = await fetch(`https://api.twelvedata.com/forex_pairs?apikey=${API_KEY}`);
-        const forexData = await forexRes.json();
-        const cryptoRes = await fetch(`https://api.twelvedata.com/cryptocurrency_pairs?apikey=${API_KEY}`);
-        const cryptoData = await cryptoRes.json();
-        const forexSymbols = (forexData.data || []).map((item: any) => item.symbol);
-        const cryptoSymbols = (cryptoData.data || []).map((item: any) => item.symbol);
-        setAllSymbols([...forexSymbols, ...cryptoSymbols]);
+        const url = `https://api.twelvedata.com/symbol_search?symbol=&apikey=${API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === "error") {
+          console.error("API Error:", data.message);
+          setAllSymbols([]);
+          return;
+        }
+
+        const allSymbols = (data.data || []).map((item: any) => item.symbol);
+        setAllSymbols(allSymbols);
       } catch (e) {
+        console.error('Error fetching all symbols:', e);
         setAllSymbols([]);
       }
     };
+
     fetchAllSymbols();
   }, []);
 
-  // Fetch prices for a list of symbols
+  // Fetch prices for given symbols
   const fetchPrices = async (symbols: string[]) => {
+    if (!symbols.length) return;
+
     setLoading(true);
     try {
-      const joined = symbols.map(s => s.replace('/', '')); // API expects e.g. GBPUSD
-      const url = `https://api.twelvedata.com/price?symbol=${joined.join(',')}&apikey=${API_KEY}`;
+      // Remove slashes for API format and join with commas
+      const joined = symbols.map(s => s.replace('/', '')).join(',');
+      const url = `https://api.twelvedata.com/price?symbol=${joined}&apikey=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
-      setPrices(prev => ({ ...prev, ...data }));
-    } catch (e) {}
+
+      if (data.status === 'error') {
+        console.error("API Error:", data.message);
+      } else {
+        // data can be an object with keys for symbols or a single symbol object
+        if (symbols.length === 1 && data.price) {
+          setPrices(prev => ({ ...prev, [symbols[0].replace('/', '')]: data }));
+        } else {
+          setPrices(prev => ({ ...prev, ...data }));
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching prices:', e);
+    }
     setLoading(false);
   };
 
-  // Search for symbols
+  // Handle search
   const onSearch = async () => {
-    if (!search) return;
+    if (!search.trim()) return;
     setLoading(true);
     try {
-      const url = `https://api.twelvedata.com/symbol_search?symbol=${search}&apikey=${API_KEY}`;
+      const url = `https://api.twelvedata.com/symbol_search?symbol=${search.trim()}&apikey=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
+
       let found = data.data || [];
-      // If API returns nothing, filter from allSymbols
+
       if (!found.length && allSymbols.length) {
+        // fallback to filter allSymbols if API returns no data
         found = allSymbols
           .filter(s => s.toLowerCase().includes(search.toLowerCase()))
           .map(s => ({ symbol: s }));
       }
+
       setResults(found);
       fetchPrices(found.map((item: any) => item.symbol));
-    } catch (e) {}
+    } catch (e) {
+      console.error('Search error:', e);
+    }
     setLoading(false);
   };
 
-  // Save/unsave favorite
+  // Toggle favorite symbols and save to AsyncStorage
   const toggleFavorite = async (symbol: string) => {
     let updated: string[];
     if (favorites.includes(symbol)) {
@@ -99,6 +124,7 @@ export default function HomeScreen() {
     await AsyncStorage.setItem('favorites', JSON.stringify(updated));
   };
 
+  // Fetch chart data for selected symbol
   const fetchChart = async (symbol: string) => {
     setChartLoading(true);
     setSelectedSymbol(symbol);
@@ -106,25 +132,37 @@ export default function HomeScreen() {
       const url = `https://api.twelvedata.com/time_series?symbol=${symbol.replace('/', '')}&interval=1h&outputsize=24&apikey=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
-      console.log('Chart API response:', data); // <-- Add this
-      setChartData(
-        (data.values || []).reverse().map((v: any) => ({
-          timestamp: new Date(v.datetime).getTime(),
-          value: parseFloat(v.close),
-        }))
-      );
+
+      if (data.status === 'error') {
+        console.error('Chart API error:', data.message);
+        setChartData([]);
+      } else {
+        setChartData(
+          (data.values || []).reverse().map((v: any) => ({
+            timestamp: new Date(v.datetime).getTime(),
+            value: parseFloat(v.close),
+          }))
+        );
+      }
     } catch (e) {
+      console.error('Chart data error:', e);
       setChartData([]);
-      console.log('Chart fetch error:', e); // <-- Add this
     }
     setChartLoading(false);
   };
 
+  // Render each row in the list
   const renderItem = ({ item }: { item: any }) => {
     const symbol = item.symbol || item;
-    const display = symbol.includes('/') ? symbol : symbol.replace(/([A-Z]+)(USD|EUR|GBP|BTC|ETH)/, '$1/$2');
-    const price = prices[symbol.replace('/', '')]?.price || prices[symbol]?.price || '--';
+    // Format symbol for display e.g. GBP/USD
+    const display = symbol.includes('/')
+      ? symbol
+      : symbol.replace(/([A-Z]+)(USD|EUR|GBP|BTC|ETH)/, '$1/$2');
+
+    const priceKey = symbol.replace('/', '');
+    const price = prices[priceKey]?.price || '--';
     const isFav = favorites.includes(symbol);
+
     return (
       <TouchableOpacity
         style={styles.row}
@@ -143,7 +181,7 @@ export default function HomeScreen() {
   return (
     <FlatList
       data={results.length ? results : DEFAULT_SYMBOLS}
-      keyExtractor={item => (item.symbol || item)}
+      keyExtractor={item => item.symbol || item}
       renderItem={renderItem}
       ListHeaderComponent={
         <>
@@ -160,9 +198,11 @@ export default function HomeScreen() {
           />
           {loading && <ActivityIndicator />}
           {favorites.length > 0 && (
-            <ThemedText type="subtitle" style={{ marginTop: 12 }}>Favorites</ThemedText>
+            <>
+              <ThemedText type="subtitle" style={{ marginTop: 12 }}>Favorites</ThemedText>
+              {favorites.map(symbol => renderItem({ item: symbol }))}
+            </>
           )}
-          {favorites.length > 0 && favorites.map(symbol => renderItem({ item: symbol }))}
         </>
       }
       ListFooterComponent={
@@ -223,5 +263,3 @@ const styles = StyleSheet.create({
     padding: 12,
   },
 });
-
-console.log('API_KEY:', API_KEY);
