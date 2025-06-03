@@ -1,17 +1,11 @@
-import Constants from 'expo-constants';
-import twelvedata from "twelvedata";
+import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import RootLayoutNav from './RootLayoutNav'; // or your main navigator
 
-const client = twelvedata({
-  key: Constants.expoConfig?.extra?.TWELVE_DATA_API_KEY,
-});
-
-const params = {
-  symbol: "AAPL",
-  interval: "1min",
-  outputsize: 5,
-};
-
-client
-  .timeSeries(params)
-  .then(data => console.log('Time Series:', data))
-  .catch(error => console.error('Error:', error));
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <RootLayoutNav />
+    </GestureHandlerRootView>
+  );
+}

@@ -129,7 +129,7 @@ export default function HomeScreen() {
     setChartLoading(true);
     setSelectedSymbol(symbol);
     try {
-      const url = `https://api.twelvedata.com/time_series?symbol=${symbol.replace('/', '')}&interval=1h&outputsize=24&apikey=${API_KEY}`;
+      const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symbol)}&interval=1h&outputsize=24&apikey=${API_KEY}`;
       const res = await fetch(url);
       const data = await res.json();
 
@@ -177,6 +177,8 @@ export default function HomeScreen() {
       </TouchableOpacity>
     );
   };
+
+  console.log('TWELVE_DATA_API_KEY:', API_KEY);
 
   return (
     <FlatList
@@ -258,7 +260,6 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     marginTop: 20,
-    backgroundColor: '#000',
     borderRadius: 12,
     padding: 12,
   },
