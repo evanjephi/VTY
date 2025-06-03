@@ -179,8 +179,6 @@ export default function HomeScreen() {
     );
   };
 
-  // console.log('TWELVE_DATA_API_KEY:', API_KEY);
-
   return (
     <FlatList
       data={results.length ? results : DEFAULT_SYMBOLS}
