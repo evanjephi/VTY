@@ -1,6 +1,6 @@
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import RootLayoutNav from './RootLayoutNav'; // or your main navigator
+import RootLayoutNav from './RootLayoutNav'; // or your main navigator, tb updated
 
 export default function App() {
   return (
