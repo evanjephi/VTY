@@ -29,7 +29,7 @@ export default function HomeScreen() {
     });
   }, []);
 
-  // Fetch prices for default symbols on mount
+ 
   useEffect(() => {
     fetchPrices(DEFAULT_SYMBOLS);
   }, []);
