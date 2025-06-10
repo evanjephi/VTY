@@ -22,7 +22,7 @@ export default function HomeScreen() {
   const [chartLoading, setChartLoading] = useState(false);
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
 
-  // Load favorites from storage
+  // Load favorites 
   useEffect(() => {
     AsyncStorage.getItem('favorites').then(data => {
       if (data) setFavorites(JSON.parse(data));
