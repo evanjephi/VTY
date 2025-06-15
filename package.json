@@ -17,6 +17,7 @@
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
     "expo": "~53.0.9",
+    "expo-auth-session": "~6.2.0",
     "expo-blur": "~14.1.4",
     "expo-constants": "~17.1.6",
     "expo-env": "^1.1.1",
@@ -30,6 +31,7 @@
     "expo-symbols": "~0.4.4",
     "expo-system-ui": "~5.0.7",
     "expo-web-browser": "~14.1.6",
+    "firebase": "^11.9.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.2",
@@ -41,7 +43,6 @@
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "twelvedata": "^3.0.1",
-    "expo-auth-session": "~6.2.0",
     "undefined": "expo-auth-session/providers/google"
   },
   "devDependencies": {
