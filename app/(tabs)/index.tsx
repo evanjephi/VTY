@@ -2,13 +2,19 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import Constants from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
+import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Button, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { LineChart } from 'react-native-wagmi-charts';
 
 const API_KEY = Constants.expoConfig?.extra?.TWELVE_DATA_API_KEY || '';
 const DEFAULT_SYMBOLS = ['GBP/USD', 'BTC/USD', 'EUR/USD', 'ETH/USD'];
+WebBrowser.maybeCompleteAuthSession();
+
+const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 export default function HomeScreen() {
   const [search, setSearch] = useState('');
@@ -20,6 +26,18 @@ export default function HomeScreen() {
   const [chartData, setChartData] = useState<any[]>([]);
   const [chartLoading, setChartLoading] = useState(false);
   const [allSymbols, setAllSymbols] = useState<string[]>([]);
+  const [userInfo, setUserInfo] = useState(null);
+
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      clientId: CLIENT_ID,
+      scopes: ['openid', 'profile', 'email'],
+      redirectUri: makeRedirectUri({
+        scheme: 'your-app-scheme', // match your app.json scheme
+      }),
+    },
+    { authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' }
+  );
 
   // Load favorites 
   useEffect(() => {
@@ -151,7 +169,19 @@ export default function HomeScreen() {
     setChartLoading(false);
   };
 
-  // Render each row in the list
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      if (authentication) {
+        fetch('https://www.googleapis.com/userinfo/v2/me', {
+          headers: { Authorization: `Bearer ${authentication.accessToken}` },
+        })
+          .then(res => res.json())
+          .then(data => setUserInfo(data));
+      }
+    }
+  }, [response]);
+
   const renderItem = ({ item }: { item: any }) => {
     const symbol = item.symbol || item;
     // Format symbol for display e.g. GBP/USD
@@ -177,6 +207,18 @@ export default function HomeScreen() {
       </TouchableOpacity>
     );
   };
+
+  if (!userInfo) {
+    return (
+      <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Button
+          disabled={!request}
+          title="Sign in with Google"
+          onPress={() => promptAsync()}
+        />
+      </ThemedView>
+    );
+  }
 
   return (
     <FlatList
