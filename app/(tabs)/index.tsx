@@ -7,7 +7,7 @@ import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { LineChart } from 'react-native-wagmi-charts';
 
 const API_KEY = Constants.expoConfig?.extra?.TWELVE_DATA_API_KEY || '';
@@ -169,18 +169,18 @@ export default function HomeScreen() {
     setChartLoading(false);
   };
 
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      if (authentication) {
-        fetch('https://www.googleapis.com/userinfo/v2/me', {
-          headers: { Authorization: `Bearer ${authentication.accessToken}` },
-        })
-          .then(res => res.json())
-          .then(data => setUserInfo(data));
-      }
-    }
-  }, [response]);
+  // useEffect(() => {
+  //   if (response?.type === 'success') {
+  //     const { authentication } = response;
+  //     if (authentication) {
+  //       fetch('https://www.googleapis.com/userinfo/v2/me', {
+  //         headers: { Authorization: `Bearer ${authentication.accessToken}` },
+  //       })
+  //         .then(res => res.json())
+  //         .then(data => setUserInfo(data));
+  //     }
+  //   };
+  // }, [response])
 
   const renderItem = ({ item }: { item: any }) => {
     const symbol = item.symbol || item;
@@ -208,17 +208,17 @@ export default function HomeScreen() {
     );
   };
 
-  if (!userInfo) {
-    return (
-      <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Button
-          disabled={!request}
-          title="Sign in with Google"
-          onPress={() => promptAsync()}
-        />
-      </ThemedView>
-    );
-  }
+  // if (!userInfo) {
+  //   return (
+  //     <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  //       <Button
+  //         disabled={!request}
+  //         title="Sign in with Google"
+  //         onPress={() => promptAsync()}
+  //       />
+  //     </ThemedView>
+  //   );
+  // }
 
   return (
     <FlatList
