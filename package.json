@@ -40,7 +40,9 @@
     "react-native-wagmi-charts": "^2.7.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "twelvedata": "^3.0.1"
+    "twelvedata": "^3.0.1",
+    "expo-auth-session": "~6.2.0",
+    "undefined": "expo-auth-session/providers/google"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
