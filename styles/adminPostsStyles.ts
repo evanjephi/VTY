@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-
+//adminstyles
 const adminPostsStyles = StyleSheet.create({
   container: {
     flex: 1,
