@@ -82,7 +82,8 @@ export default function HomeScreen() {
 
     setLoading(true);
     try {
-      // Remove slashes for API format and join with commas
+      // Remove slashes for API format 
+      // and join with commas
       const joined = symbols.map(s => s.replace('/', '')).join(',');
       const url = `https://api.twelvedata.com/price?symbol=${joined}&apikey=${API_KEY}`;
       const res = await fetch(url);

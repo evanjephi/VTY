@@ -7,7 +7,7 @@ import { Alert, FlatList, KeyboardAvoidingView, Platform, TextInput, TouchableOp
 import { db } from '../../firebaseConfig';
 import adminPostsStyles from '../../styles/adminPostsStyles';
 
-
+//admin posts
 type Post = {
   id: string;
   title: string;
