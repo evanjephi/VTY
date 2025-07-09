@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 const adminPostsStyles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingTop: 50,
     backgroundColor: '#F4F8FB',
   },
   header: {
@@ -89,6 +89,32 @@ const adminPostsStyles = StyleSheet.create({
     color: '#888',
     marginTop: 6,
     textAlign: 'right',
+  },
+  commentsSection: {
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E7EF',
+    paddingTop: 12,
+  },
+  commentBubble: {
+    backgroundColor: '#F1F5F9',
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 8,
+    maxWidth: '80%',
+  },
+  commentAuthor: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: '#E0E7EF',
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: '#F8FAFC',
+    fontSize: 16,
+    color: '#222',
   },
 });
 
