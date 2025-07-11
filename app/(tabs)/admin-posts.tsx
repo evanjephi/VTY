@@ -21,7 +21,7 @@ export default function AdminPostsScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch posts from Firestore
+  // Fetch posts from Firestore, disabled for now
   const fetchPosts = async () => {
     setLoading(true);
     try {
