@@ -5,7 +5,7 @@ import adminPostsStyles from '../../styles/adminPostsStyles'; // Corrected impor
 
 export default function AdminDashboard() {
   // Fetch posts, allow delete/edit, restrict to admin
-  // Scaffold only, let me know if you want full code!
+  // Scaffold only, let me know if you want full code! Will be provided soon
   return (
     <View style={adminPostsStyles.container}>
       <ThemedText type="title">Admin Dashboard</ThemedText>
