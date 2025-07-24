@@ -63,7 +63,7 @@ export default function AdminPostsScreen() {
     }
   };
 
-  const renderPost = ({ item }: { item: Post }) => (
+ const RenderPost = React.memo(({ item }: { item: Post }) => (
     <View style={adminPostsStyles.postCard}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
         <Ionicons name="person-circle-outline" size={24} color="#4F8EF7" style={{ marginRight: 8 }} />
@@ -130,4 +130,3 @@ export default function AdminPostsScreen() {
     </ThemedView>
   );
 }
-
