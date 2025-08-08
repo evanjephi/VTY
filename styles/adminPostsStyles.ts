@@ -116,6 +116,33 @@ const adminPostsStyles = StyleSheet.create({
     fontSize: 16,
     color: '#222',
   },
+  listContainer: {
+    paddingTop: 16,
+  },
+  // postCard: {
+  //   backgroundColor: '#FFFFFF',
+  //   borderRadius: 8,
+  //   padding: 12,
+  //   marginBottom: 12,
+  //   shadowColor: '#000',
+  //   shadowOpacity: 0.1,
+  //   shadowRadius: 4,
+  //   elevation: 2,
+  //   flexDirection: 'row',
+  //   justifyContent: 'space-between',
+  //   alignItems: 'center',
+  // },
+  postInfo: {
+    flex: 1,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    marginLeft: 12,
+  },
+  iconButton: {
+    marginHorizontal: 6,
+    padding: 4,
+  },
 });
 
 export default adminPostsStyles;

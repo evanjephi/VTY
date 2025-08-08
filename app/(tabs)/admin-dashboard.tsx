@@ -1,20 +1,33 @@
 import { ThemedText } from '@/components/ThemedText';
+<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import adminPostsStyles from '../../styles/adminPostsStyles';
 import { db } from '../../firebaseConfig';
 import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { Ionicons } from '@expo/vector-icons';
+=======
+import { MaterialIcons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
+import adminPostsStyles from '../../styles/adminPostsStyles';
+>>>>>>> 04e777af82e13db2f7559e9e61727d9b9bd5806e
 
 type Post = {
   id: string;
   title: string;
+<<<<<<< HEAD
   content: string;
   likes?: number;
+=======
+  author: string;
+  date: string;
+>>>>>>> 04e777af82e13db2f7559e9e61727d9b9bd5806e
 };
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<Post[]>([]);
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
 
   // Fetch posts from Firestore
@@ -46,10 +59,38 @@ export default function AdminDashboard() {
     } catch (e) {
       Alert.alert('Error', 'Failed to like post.');
     }
+=======
+
+  useEffect(() => {
+    // Simulated fetch
+    setPosts([
+      { id: '1', title: 'First Post', author: 'Jane Doe', date: '2025-07-20' },
+      { id: '2', title: 'Second Post', author: 'John Smith', date: '2025-07-19' },
+    ]);
+  }, []);
+
+  const handleDelete = (postId: string) => {
+    Alert.alert('Confirm Delete', 'Are you sure you want to delete this post?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          setPosts(prev => prev.filter(post => post.id !== postId));
+        },
+      },
+    ]);
+  };
+
+  const handleEdit = (postId: string) => {
+    // Navigate to edit screen (or open modal)
+    Alert.alert('Edit', `Editing post ID: ${postId}`);
+>>>>>>> 04e777af82e13db2f7559e9e61727d9b9bd5806e
   };
 
   const renderPost = ({ item }: { item: Post }) => (
     <View style={adminPostsStyles.postCard}>
+<<<<<<< HEAD
       <ThemedText style={adminPostsStyles.postTitle}>{item.title}</ThemedText>
       <ThemedText style={adminPostsStyles.postContent}>{item.content}</ThemedText>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
@@ -61,6 +102,20 @@ export default function AdminDashboard() {
           <ThemedText style={{ marginLeft: 6 }}>{item.likes || 0}</ThemedText>
         </TouchableOpacity>
         {/* You can add more reactions here */}
+=======
+      <View style={adminPostsStyles.postInfo}>
+        <ThemedText type="subtitle">{item.title}</ThemedText>
+        <ThemedText type="default">By {item.author}</ThemedText>
+        <ThemedText type="default">{item.date}</ThemedText>
+      </View>
+      <View style={adminPostsStyles.actionButtons}>
+        <TouchableOpacity onPress={() => handleEdit(item.id)} style={adminPostsStyles.iconButton}>
+          <MaterialIcons name="edit" size={20} color="#007AFF" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleDelete(item.id)} style={adminPostsStyles.iconButton}>
+          <MaterialIcons name="delete" size={20} color="#FF3B30" />
+        </TouchableOpacity>
+>>>>>>> 04e777af82e13db2f7559e9e61727d9b9bd5806e
       </View>
     </View>
   );
@@ -71,6 +126,7 @@ export default function AdminDashboard() {
       <FlatList
         data={posts}
         keyExtractor={item => item.id}
+<<<<<<< HEAD
         refreshing={loading}
         onRefresh={fetchPosts}
         renderItem={renderPost}
@@ -79,6 +135,10 @@ export default function AdminDashboard() {
             No posts yet.
           </ThemedText>
         }
+=======
+        renderItem={renderPost}
+        contentContainerStyle={adminPostsStyles.listContainer}
+>>>>>>> 04e777af82e13db2f7559e9e61727d9b9bd5806e
       />
     </View>
   );
