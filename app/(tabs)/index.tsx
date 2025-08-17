@@ -14,6 +14,7 @@ const API_KEY = Constants.expoConfig?.extra?.TWELVE_DATA_API_KEY || '';
 const DEFAULT_SYMBOLS = ['GBP/USD', 'BTC/USD', 'EUR/USD', 'ETH/USD'];
 WebBrowser.maybeCompleteAuthSession();
 
+//Set up Google client
 const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
 
 export default function HomeScreen() {
