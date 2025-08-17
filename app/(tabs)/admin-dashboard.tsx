@@ -50,7 +50,7 @@ export default function AdminDashboard() {
     fetchPosts();
   }, []);
 
-  // Handle like
+  // Handle for likes
   const handleLike = async (postId: string, currentLikes: number = 0) => {
     try {
       const postRef = doc(db, 'posts', postId);
