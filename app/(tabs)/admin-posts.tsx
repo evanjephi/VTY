@@ -7,7 +7,7 @@ import { Alert, FlatList, KeyboardAvoidingView, Platform, TextInput, TouchableOp
 import { db } from '../../firebaseConfig';
 import adminPostsStyles from '../../styles/adminPostsStyles';
 
-//admin posts
+//admin posts using type to strict variable declaration
 type Post = {
     id: string;
     title: string;
