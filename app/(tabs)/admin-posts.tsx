@@ -42,7 +42,7 @@ export default function AdminPostsScreen() {
         fetchPosts();
     }, []);
 
-    // Add a new post
+    // handle post to Add a new post
     const handlePost = async () => {
         if (!title.trim() || !content.trim()) {
             Alert.alert('Validation', 'Title and content are required.');
