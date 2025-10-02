@@ -7,7 +7,7 @@ import { Alert, FlatList, KeyboardAvoidingView, Platform, TextInput, TouchableOp
 import { db } from '../../firebaseConfig';
 import adminPostsStyles from '../../styles/adminPostsStyles';
 
-//admin posts
+//admin posts using type to strict variable declaration
 type Post = {
     id: string;
     title: string;
@@ -42,7 +42,7 @@ export default function AdminPostsScreen() {
         fetchPosts();
     }, []);
 
-    // Add a new post
+    // handle post to Add a new post
     const handlePost = async () => {
         if (!title.trim() || !content.trim()) {
             Alert.alert('Validation', 'Title and content are required.');

@@ -15,6 +15,42 @@ type Post = {
 
 export default function AdminDashboard() {
   const [posts, setPosts] = useState<Post[]>([]);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  const [loading, setLoading] = useState(false);
+
+  // Fetch posts from Firestore
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(db, 'posts'));
+      const loadedPosts: Post[] = [];
+      querySnapshot.forEach(docSnap => {
+        loadedPosts.push({ id: docSnap.id, ...(docSnap.data() as Omit<Post, 'id'>) });
+      });
+      setPosts(loadedPosts);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to fetch posts.');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  // Handle for likes
+  const handleLike = async (postId: string, currentLikes: number = 0) => {
+    try {
+      const postRef = doc(db, 'posts', postId);
+      await updateDoc(postRef, { likes: currentLikes + 1 });
+      fetchPosts();
+    } catch (e) {
+      Alert.alert('Error', 'Failed to like post.');
+    }
+=======
+>>>>>>> f0e87421e277e37df27b7188b9a42d77a1eaf640
 
   useEffect(() => {
     // Simulated fetch
